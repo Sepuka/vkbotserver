@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
+	"github.com/sepuka/vkbotserver/internal/log"
 	"github.com/sepuka/vkbotserver/message"
 	"github.com/sepuka/vkbotserver/middleware"
 	"go.uber.org/zap"
@@ -26,10 +27,18 @@ type SocketServer struct {
 
 func NewSocketServer(
 	cfg config.Config,
-	logger *zap.SugaredLogger,
 	messages message.HandlerMap,
 	handler middleware.HandlerFunc,
 ) *SocketServer {
+	var (
+		logger *zap.SugaredLogger
+		err    error
+	)
+
+	if logger, err = log.NewLogger(cfg.Logger.Prod); err != nil {
+		return nil
+	}
+
 	return &SocketServer{
 		cfg:      cfg,
 		logger:   logger,
@@ -65,6 +74,7 @@ func (s *SocketServer) Listen() error {
 
 	go func() {
 		<-signals
+		_ = s.logger.Sync()
 		if err = listener.Close(); err != nil {
 			stop <- errors.Wrap(err, `unable to close HTTP connection`)
 		}
