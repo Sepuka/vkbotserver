@@ -1,7 +1,7 @@
 package server
 
 import (
-	"encoding/json"
+	"github.com/mailru/easyjson"
 	"github.com/pkg/errors"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
@@ -16,6 +16,11 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+)
+
+const (
+	defaultOutput = `ok`
+	invalidJSON   = `invalid json`
 )
 
 type SocketServer struct {
@@ -97,7 +102,7 @@ func (s *SocketServer) server(listener net.Listener, c chan<- error) {
 func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
 		callback = &domain.Request{}
-		output   = []byte(`ok`)
+		output   = []byte(defaultOutput)
 		clone    []byte
 		err      error
 	)
@@ -105,7 +110,7 @@ func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	defer func() {
 		if err := recover(); err != nil {
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(`500 SocketServer error`))
 		}
 	}()
@@ -125,11 +130,11 @@ func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		).
 		Infof(`incoming %s-request to %s`, r.Method, r.URL.Path)
 
-	if err = json.NewDecoder(r.Body).Decode(callback); err != nil {
-		if _, err = w.Write([]byte(`invalid json`)); err != nil {
+	if err = easyjson.UnmarshalFromReader(r.Body, callback); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		if _, err = w.Write([]byte(invalidJSON)); err != nil {
 			s.logger.Errorf(`cannot write error message about invalid incoming json %s`, err)
 		}
-		w.WriteHeader(400)
 
 		return
 	}
@@ -142,6 +147,6 @@ func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if _, err = w.Write(output); err != nil {
 			s.logger.Errorf(`cannot write error message about unknown type field %s`, err)
 		}
-		w.WriteHeader(400)
+		w.WriteHeader(http.StatusBadRequest)
 	}
 }

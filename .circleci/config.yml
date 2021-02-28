@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.13
+    filters:
+      branches:
+        only:
+          - main
+    working_directory: /go/src/github.com/sepuka/vkbotserver
+    steps:
+      - checkout
+      - run: make dependencies
+      - run: make tests

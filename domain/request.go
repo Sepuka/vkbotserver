@@ -28,8 +28,9 @@ type Object struct {
 	ClientInfo ClientInfo
 }
 
+//easyjson:json
 type Request struct {
-	Type    string
+	Type    string `json:"type"`
 	Object  Object
 	GroupId int32  `json:"group_id"`
 	EventId string `json:"event_id"`

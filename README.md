@@ -1,4 +1,5 @@
 # vkbotserver
+[![Build](https://circleci.com/gh/sepuka/vkbotserver.svg?style=svg)](https://github.com/Sepuka/vkbotserver)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Sepuka/vkbotserver)](https://goreportcard.com/report/github.com/Sepuka/vkbotserver)
 
 There is a server-bot for vk.com
@@ -11,7 +12,7 @@ There is a server-bot for vk.com
   name = "github.com/sepuka/vkbotserver"
   version = "v0.0.2"
 ```
-  
+
 2. Instance server
 
 ```
@@ -33,13 +34,15 @@ var simpleHandler = func (handler message.Executor, req *domain.Request, resp ht
 var server = server.NewSocketServer(cfg.Server, handlerMap, simpleHandler), nil
 ```
 
-3. Run and listen
+3. Run and listen incoming requests
 
 ```
 server.Listen()
 ```
 
 ## Nginx settings
+
+Bellow the example of the web-server config
 
 ```
         location ~^/your_postfix/ {
@@ -49,3 +52,5 @@ server.Listen()
                 error_log       /var/log/nginx/APP_error.log;
         }
 ```
+
+Where `fastcgi-pass` param is a socket file which path you've written in the config `config.socket`.
