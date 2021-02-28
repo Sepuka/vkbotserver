@@ -1,5 +1,5 @@
 # vkbotserver
-[![Build](https://circleci.com/gh/sepuka/vkbotserver.svg?style=svg)](https://github.com/Sepuka/vkbotserver)
+[![Build](https://circleci.com/gh/Sepuka/vkbotserver.svg?style=svg)](https://github.com/Sepuka/vkbotserver)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Sepuka/vkbotserver)](https://goreportcard.com/report/github.com/Sepuka/vkbotserver)
 
 There is a server-bot for vk.com
