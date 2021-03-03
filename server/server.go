@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/mailru/easyjson"
 	"github.com/pkg/errors"
+	"github.com/sepuka/vkbotserver/api"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
 	"github.com/sepuka/vkbotserver/internal/log"
@@ -19,8 +20,7 @@ import (
 )
 
 const (
-	defaultOutput = `ok`
-	invalidJSON   = `invalid json`
+	invalidJSON = `invalid json`
 )
 
 type SocketServer struct {
@@ -102,7 +102,7 @@ func (s *SocketServer) server(listener net.Listener, c chan<- error) {
 func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
 		callback = &domain.Request{}
-		output   = []byte(defaultOutput)
+		output   = api.Response()
 		clone    []byte
 		err      error
 	)

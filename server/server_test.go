@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/sepuka/vkbotserver/api"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
 	"github.com/sepuka/vkbotserver/message"
@@ -62,7 +63,7 @@ func TestSocketServer_ServeHTTP(t *testing.T) {
 			`unknown message type`: {
 				server:       server,
 				incomingMsg:  unknownTypeMsg,
-				expectedBody: []byte(defaultOutput),
+				expectedBody: api.Response(),
 				expectedCode: http.StatusOK,
 			},
 			`valid confirmation msg`: {
