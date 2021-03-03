@@ -36,3 +36,7 @@ type Request struct {
 	EventId string `json:"event_id"`
 	Secret  string
 }
+
+func (v Request) IsKeyBoardButton() bool {
+	return v.Object.Message.Payload != ``
+}
