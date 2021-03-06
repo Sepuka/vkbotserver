@@ -1,8 +1,8 @@
 package server
 
 import (
+	"errors"
 	"fmt"
-	"github.com/sepuka/vkbotserver/api"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
 	"github.com/sepuka/vkbotserver/message"
@@ -15,11 +15,18 @@ import (
 	"testing"
 )
 
+type mistakenHandler struct{}
+
+func (m mistakenHandler) Exec(req *domain.Request, resp http.ResponseWriter) error {
+	return errors.New(`there is a persistent error`)
+}
+
 func TestSocketServer_ServeHTTP(t *testing.T) {
 	const (
 		validConfirmationOutput = `this_is_a_valid_confirmation_output`
 
 		validConfirmationMsg = `{"type": "confirmation", "group_id": 123}`
+		handlerWithErrorMsg  = `{"type": "mistakenHandler", "group_id": 123}`
 		unknownTypeMsg       = `{"type": "???", "group_id": 123}`
 		invalidJsonMsg       = `{`
 		emptyJsonMsg         = ``
@@ -33,12 +40,14 @@ func TestSocketServer_ServeHTTP(t *testing.T) {
 			Confirmation: validConfirmationOutput,
 			Logger:       config.Logger{},
 		}
+		emptyAnswer = []byte(``)
 
 		handler = func(handler message.Executor, req *domain.Request, resp http.ResponseWriter) error {
 			return handler.Exec(req, resp)
 		}
 		handlerMap = message.HandlerMap{
-			`confirmation`: message.NewConfirmation(cfg),
+			`confirmation`:    message.NewConfirmation(cfg),
+			`mistakenHandler`: mistakenHandler{},
 		}
 		server = NewSocketServer(cfg, handlerMap, handler)
 
@@ -63,14 +72,20 @@ func TestSocketServer_ServeHTTP(t *testing.T) {
 			`unknown message type`: {
 				server:       server,
 				incomingMsg:  unknownTypeMsg,
-				expectedBody: api.Response(),
-				expectedCode: http.StatusOK,
+				expectedBody: emptyAnswer,
+				expectedCode: http.StatusBadRequest,
 			},
 			`valid confirmation msg`: {
 				server:       server,
 				incomingMsg:  validConfirmationMsg,
 				expectedBody: []byte(validConfirmationOutput),
 				expectedCode: http.StatusOK,
+			},
+			`handler with error`: {
+				server:       server, // TODO удалить
+				incomingMsg:  handlerWithErrorMsg,
+				expectedBody: emptyAnswer,
+				expectedCode: http.StatusInternalServerError,
 			},
 		}
 	)

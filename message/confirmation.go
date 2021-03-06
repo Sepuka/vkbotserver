@@ -6,22 +6,23 @@ import (
 	"net/http"
 )
 
-type Confirmation struct {
+// handler for confirmation-requests
+type confirmation struct {
 	cfg config.Config
 }
 
-func NewConfirmation(cfg config.Config) *Confirmation {
-	return &Confirmation{
+func NewConfirmation(cfg config.Config) *confirmation {
+	return &confirmation{
 		cfg: cfg,
 	}
 }
 
-func (o *Confirmation) Exec(req *domain.Request, resp http.ResponseWriter) error {
+func (o *confirmation) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	_, err := resp.Write([]byte(o.cfg.Confirmation))
 
 	return err
 }
 
-func (o *Confirmation) String() string {
+func (o *confirmation) String() string {
 	return `confirmation`
 }

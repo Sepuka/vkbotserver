@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// each msg handler must implement this interface
 type HandlerMap map[string]Executor
 
 type Executor interface {

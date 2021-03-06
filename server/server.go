@@ -3,7 +3,6 @@ package server
 import (
 	"github.com/mailru/easyjson"
 	"github.com/pkg/errors"
-	"github.com/sepuka/vkbotserver/api"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
 	"github.com/sepuka/vkbotserver/internal/log"
@@ -102,7 +101,6 @@ func (s *SocketServer) server(listener net.Listener, c chan<- error) {
 func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
 		callback = &domain.Request{}
-		output   = api.Response()
 		clone    []byte
 		err      error
 	)
@@ -142,11 +140,9 @@ func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if finalHandler, ok := s.messages[callback.Type]; ok {
 		if err = s.handler(finalHandler, callback, w); err != nil {
 			s.logger.Errorf(`error while handling request: %s`, err)
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 	} else {
-		if _, err = w.Write(output); err != nil {
-			s.logger.Errorf(`cannot write error message about unknown type field %s`, err)
-		}
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
