@@ -7,6 +7,7 @@ import (
 	"github.com/sepuka/vkbotserver/domain"
 	"github.com/sepuka/vkbotserver/message"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -36,6 +37,7 @@ func TestSocketServer_ServeHTTP(t *testing.T) {
 		errMsg string
 		req    *http.Request
 		resp   *httptest.ResponseRecorder
+		logger = zap.NewNop().Sugar()
 		cfg    = config.Config{
 			Confirmation: validConfirmationOutput,
 			Logger:       config.Logger{},
@@ -49,7 +51,7 @@ func TestSocketServer_ServeHTTP(t *testing.T) {
 			`confirmation`:    message.NewConfirmation(cfg),
 			`mistakenHandler`: mistakenHandler{},
 		}
-		server = NewSocketServer(cfg, handlerMap, handler)
+		server = NewSocketServer(cfg, handlerMap, handler, logger)
 
 		tests = map[string]struct {
 			server       *SocketServer
