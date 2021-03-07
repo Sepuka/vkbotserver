@@ -38,13 +38,13 @@ func easyjson3c9d2b01DecodeGithubComSepukaVkbotserverDomain(in *jlexer.Lexer, ou
 		switch key {
 		case "type":
 			out.Type = string(in.String())
-		case "Object":
+		case "object":
 			easyjson3c9d2b01DecodeGithubComSepukaVkbotserverDomain1(in, &out.Object)
 		case "group_id":
 			out.GroupId = int32(in.Int32())
 		case "event_id":
 			out.EventId = string(in.String())
-		case "Secret":
+		case "secret":
 			out.Secret = string(in.String())
 		default:
 			in.SkipRecursive()
@@ -66,7 +66,7 @@ func easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain(out *jwriter.Writer,
 		out.String(string(in.Type))
 	}
 	{
-		const prefix string = ",\"Object\":"
+		const prefix string = ",\"object\":"
 		out.RawString(prefix)
 		easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain1(out, in.Object)
 	}
@@ -81,7 +81,7 @@ func easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain(out *jwriter.Writer,
 		out.String(string(in.EventId))
 	}
 	{
-		const prefix string = ",\"Secret\":"
+		const prefix string = ",\"secret\":"
 		out.RawString(prefix)
 		out.String(string(in.Secret))
 	}
@@ -130,7 +130,7 @@ func easyjson3c9d2b01DecodeGithubComSepukaVkbotserverDomain1(in *jlexer.Lexer, o
 			continue
 		}
 		switch key {
-		case "Message":
+		case "message":
 			easyjson3c9d2b01DecodeGithubComSepukaVkbotserverDomain2(in, &out.Message)
 		case "ClientInfo":
 			easyjson3c9d2b01DecodeGithubComSepukaVkbotserverDomain3(in, &out.ClientInfo)
@@ -149,7 +149,7 @@ func easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain1(out *jwriter.Writer
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"Message\":"
+		const prefix string = ",\"message\":"
 		out.RawString(prefix[1:])
 		easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain2(out, in.Message)
 	}
@@ -274,21 +274,21 @@ func easyjson3c9d2b01DecodeGithubComSepukaVkbotserverDomain2(in *jlexer.Lexer, o
 			continue
 		}
 		switch key {
-		case "Id":
+		case "id":
 			out.Id = int32(in.Int32())
-		case "Date":
+		case "date":
 			out.Date = int32(in.Int32())
 		case "from_id":
 			out.FromId = int32(in.Int32())
 		case "peer_id":
 			out.PeerId = int32(in.Int32())
-		case "Out":
+		case "out":
 			out.Out = int32(in.Int32())
-		case "Text":
+		case "text":
 			out.Text = string(in.String())
 		case "conversation_message_id":
 			out.ConversationMessageId = int32(in.Int32())
-		case "FwdMessages":
+		case "fwd_messages":
 			if in.IsNull() {
 				in.Skip()
 				out.FwdMessages = nil
@@ -311,11 +311,11 @@ func easyjson3c9d2b01DecodeGithubComSepukaVkbotserverDomain2(in *jlexer.Lexer, o
 				}
 				in.Delim(']')
 			}
-		case "Important":
+		case "important":
 			out.Important = bool(in.Bool())
 		case "random_id":
 			out.RandomId = int32(in.Int32())
-		case "Attachments":
+		case "attachments":
 			if in.IsNull() {
 				in.Skip()
 				out.Attachments = nil
@@ -338,9 +338,9 @@ func easyjson3c9d2b01DecodeGithubComSepukaVkbotserverDomain2(in *jlexer.Lexer, o
 				}
 				in.Delim(']')
 			}
-		case "IsHidden":
+		case "is_hidden":
 			out.IsHidden = bool(in.Bool())
-		case "Payload":
+		case "payload":
 			out.Payload = string(in.String())
 		default:
 			in.SkipRecursive()
@@ -357,12 +357,12 @@ func easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain2(out *jwriter.Writer
 	first := true
 	_ = first
 	{
-		const prefix string = ",\"Id\":"
+		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
 		out.Int32(int32(in.Id))
 	}
 	{
-		const prefix string = ",\"Date\":"
+		const prefix string = ",\"date\":"
 		out.RawString(prefix)
 		out.Int32(int32(in.Date))
 	}
@@ -377,12 +377,12 @@ func easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain2(out *jwriter.Writer
 		out.Int32(int32(in.PeerId))
 	}
 	{
-		const prefix string = ",\"Out\":"
+		const prefix string = ",\"out\":"
 		out.RawString(prefix)
 		out.Int32(int32(in.Out))
 	}
 	{
-		const prefix string = ",\"Text\":"
+		const prefix string = ",\"text\":"
 		out.RawString(prefix)
 		out.String(string(in.Text))
 	}
@@ -392,7 +392,7 @@ func easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain2(out *jwriter.Writer
 		out.Int32(int32(in.ConversationMessageId))
 	}
 	{
-		const prefix string = ",\"FwdMessages\":"
+		const prefix string = ",\"fwd_messages\":"
 		out.RawString(prefix)
 		if in.FwdMessages == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")
@@ -408,7 +408,7 @@ func easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain2(out *jwriter.Writer
 		}
 	}
 	{
-		const prefix string = ",\"Important\":"
+		const prefix string = ",\"important\":"
 		out.RawString(prefix)
 		out.Bool(bool(in.Important))
 	}
@@ -418,7 +418,7 @@ func easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain2(out *jwriter.Writer
 		out.Int32(int32(in.RandomId))
 	}
 	{
-		const prefix string = ",\"Attachments\":"
+		const prefix string = ",\"attachments\":"
 		out.RawString(prefix)
 		if in.Attachments == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
 			out.RawString("null")
@@ -434,12 +434,12 @@ func easyjson3c9d2b01EncodeGithubComSepukaVkbotserverDomain2(out *jwriter.Writer
 		}
 	}
 	{
-		const prefix string = ",\"IsHidden\":"
+		const prefix string = ",\"is_hidden\":"
 		out.RawString(prefix)
 		out.Bool(bool(in.IsHidden))
 	}
 	{
-		const prefix string = ",\"Payload\":"
+		const prefix string = ",\"payload\":"
 		out.RawString(prefix)
 		out.String(string(in.Payload))
 	}
