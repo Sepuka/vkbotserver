@@ -28,6 +28,7 @@ type (
 		ApiVersion  string `url:"v"`
 		PeerId      int    `url:"peer_id"`
 		RandomId    int64  `url:"random_id"`
+		Attachment  string `url:"attachment"`
 	}
 
 	HTTPClient interface {
@@ -55,6 +56,37 @@ func NewApi(logger *zap.SugaredLogger, cfg config.Config, client HTTPClient, rnd
 		client: client,
 		rnd:    rnd,
 	}
+}
+
+func (a *Api) SendMessageWithAttachmentAndButton(peerId int, msg string, attachment string, keyboard button.Keyboard) error {
+	var (
+		payload = OutcomeMessage{
+			Message:     msg,
+			AccessToken: a.cfg.Api.Token,
+			ApiVersion:  Version,
+			PeerId:      peerId,
+			RandomId:    a.rnd.Rnd(),
+			Attachment:  attachment,
+		}
+		err error
+		js  []byte
+	)
+
+	if js, err = json.Marshal(keyboard); err != nil {
+		a.
+			logger.
+			With(
+				zap.Any(`request`, keyboard),
+				zap.Error(err),
+			).
+			Errorf(`build keyboard query string error`)
+
+		return err
+	}
+
+	payload.Keyboard = string(js)
+
+	return a.send(payload)
 }
 
 // Sends message with keyboard
