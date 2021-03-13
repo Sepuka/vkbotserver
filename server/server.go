@@ -28,6 +28,7 @@ type SocketServer struct {
 	handler  middleware.HandlerFunc
 }
 
+// SocketServer constructor
 func NewSocketServer(
 	cfg config.Config,
 	messages message.HandlerMap,
@@ -42,6 +43,7 @@ func NewSocketServer(
 	}
 }
 
+// Listens unix socket which created by webserver
 func (s *SocketServer) Listen() error {
 	var (
 		socket   = s.cfg.Socket

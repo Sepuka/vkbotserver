@@ -40,6 +40,8 @@ type Request struct {
 	Secret  string `json:"secret"`
 }
 
-func (v Request) IsKeyBoardButton() bool {
+// detects which type of requests you've got
+// the payload key may contents some json when a user pushed a vk-keyboard button
+func (v Request) IsKeyboardButton() bool {
 	return v.Object.Message.Payload != ``
 }

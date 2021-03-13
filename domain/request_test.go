@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestRequest_IsKeyBoardButton(t *testing.T) {
+func TestRequest_IsKeyboardButton(t *testing.T) {
 	var (
 		test = map[string]struct {
 			req      Request
@@ -33,6 +33,6 @@ func TestRequest_IsKeyBoardButton(t *testing.T) {
 	)
 
 	for _, testCase := range test {
-		assert.Equal(t, testCase.isButton, testCase.req.IsKeyBoardButton())
+		assert.Equal(t, testCase.isButton, testCase.req.IsKeyboardButton())
 	}
 }

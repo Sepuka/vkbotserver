@@ -16,7 +16,7 @@ There is a server-bot for vk.com
 2. Instance server
 
 ```
-var handlers := []Executor{
+var handlers = []Executor{
     message.NewConfirmation(cfg.Server)
 }
 
