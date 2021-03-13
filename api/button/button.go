@@ -36,7 +36,7 @@ type (
 	// Contains button payload like `{"command": "start"}`
 	Payload struct {
 		Command string `json:"command"`
-		Button  string `json:"button"`
+		Id      string `json:"id"`
 	}
 )
 
