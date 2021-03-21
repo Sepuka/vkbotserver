@@ -89,6 +89,36 @@ func (a *Api) SendMessageWithAttachmentAndButton(peerId int, msg string, attachm
 	return a.send(payload)
 }
 
+// Sends keyboard only
+func (a *Api) SendButtons(peerId int, keyboard button.Keyboard) error {
+	var (
+		payload = OutcomeMessage{
+			AccessToken: a.cfg.Api.Token,
+			ApiVersion:  Version,
+			PeerId:      peerId,
+			RandomId:    a.rnd.Rnd(),
+		}
+		err error
+		js  []byte
+	)
+
+	if js, err = json.Marshal(keyboard); err != nil {
+		a.
+			logger.
+			With(
+				zap.Any(`request`, keyboard),
+				zap.Error(err),
+			).
+			Errorf(`build keyboard query string error`)
+
+		return err
+	}
+
+	payload.Keyboard = string(js)
+
+	return a.send(payload)
+}
+
 // Sends message with keyboard
 func (a *Api) SendMessageWithButton(peerId int, msg string, keyboard button.Keyboard) error {
 	var (
