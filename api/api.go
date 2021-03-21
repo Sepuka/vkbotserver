@@ -58,6 +58,7 @@ func NewApi(logger *zap.SugaredLogger, cfg config.Config, client HTTPClient, rnd
 	}
 }
 
+// Sends custom message with VK attachment
 func (a *Api) SendMessageWithAttachmentAndButton(peerId int, msg string, attachment string, keyboard button.Keyboard) error {
 	var (
 		payload = OutcomeMessage{
@@ -67,36 +68,6 @@ func (a *Api) SendMessageWithAttachmentAndButton(peerId int, msg string, attachm
 			PeerId:      peerId,
 			RandomId:    a.rnd.Rnd(),
 			Attachment:  attachment,
-		}
-		err error
-		js  []byte
-	)
-
-	if js, err = json.Marshal(keyboard); err != nil {
-		a.
-			logger.
-			With(
-				zap.Any(`request`, keyboard),
-				zap.Error(err),
-			).
-			Errorf(`build keyboard query string error`)
-
-		return err
-	}
-
-	payload.Keyboard = string(js)
-
-	return a.send(payload)
-}
-
-// Sends keyboard only
-func (a *Api) SendButtons(peerId int, keyboard button.Keyboard) error {
-	var (
-		payload = OutcomeMessage{
-			AccessToken: a.cfg.Api.Token,
-			ApiVersion:  Version,
-			PeerId:      peerId,
-			RandomId:    a.rnd.Rnd(),
 		}
 		err error
 		js  []byte
