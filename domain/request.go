@@ -38,6 +38,7 @@ type Request struct {
 	GroupId int32  `json:"group_id"`
 	EventId string `json:"event_id"`
 	Secret  string `json:"secret"`
+	Context interface{}
 }
 
 // detects which type of requests you've got
