@@ -14,7 +14,7 @@ type HTTPClient struct {
 }
 
 // Do provides a mock function with given fields: req
-func (_m *HTTPClient) Do(req *http.Request) (*http.Response, error) {
+func (_m HTTPClient) Do(req *http.Request) (*http.Response, error) {
 	ret := _m.Called(req)
 
 	var r0 *http.Response
