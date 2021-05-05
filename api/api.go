@@ -16,7 +16,7 @@ import (
 const (
 	defaultOutput         = `ok`
 	Endpoint              = `https://api.vk.com/method`
-	apiMethodMessagesSend = `messages.send`
+	MethodApiMessagesSend = `messages.send`
 	Version               = `5.120`
 )
 
@@ -142,7 +142,7 @@ func (a *Api) send(msgStruct OutcomeMessage) error {
 		return err
 	}
 
-	endpoint = fmt.Sprintf(`%s/%s?%s`, Endpoint, apiMethodMessagesSend, params.Encode())
+	endpoint = fmt.Sprintf(`%s/%s?%s`, Endpoint, MethodApiMessagesSend, params.Encode())
 	maskedParams = a.cfg.Api.MaskedToken(endpoint)
 
 	if request, err = http.NewRequest(`POST`, endpoint, nil); err != nil {

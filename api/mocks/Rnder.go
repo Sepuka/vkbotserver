@@ -10,7 +10,7 @@ type Rnder struct {
 }
 
 // Rnd provides a mock function with given fields:
-func (_m Rnder) Rnd() int64 {
+func (_m *Rnder) Rnd() int64 {
 	ret := _m.Called()
 
 	var r0 int64
