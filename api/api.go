@@ -58,6 +58,20 @@ func NewApi(logger *zap.SugaredLogger, cfg config.Config, client HTTPClient, rnd
 	}
 }
 
+func (a *Api) SendMessage(peerId int, msg string) error {
+	var (
+		payload = OutcomeMessage{
+			Message:     msg,
+			AccessToken: a.cfg.Api.Token,
+			ApiVersion:  Version,
+			PeerId:      peerId,
+			RandomId:    a.rnd.Rnd(),
+		}
+	)
+
+	return a.send(payload)
+}
+
 // SendMessageWithAttachmentAndButton Sends custom message with VK attachment
 func (a *Api) SendMessageWithAttachmentAndButton(peerId int, msg string, attachment string, keyboard button.Keyboard) error {
 	var (
