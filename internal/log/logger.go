@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// NewLogger creates a new logger instance
 func NewLogger(production bool) (*zap.SugaredLogger, error) {
 	var (
 		err               error
