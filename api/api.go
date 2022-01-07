@@ -17,7 +17,7 @@ const (
 	defaultOutput         = `ok`
 	Endpoint              = `https://api.vk.com/method`
 	MethodApiMessagesSend = `messages.send`
-	Version               = `5.120`
+	Version               = `5.170`
 )
 
 type (
@@ -43,12 +43,12 @@ type (
 	}
 )
 
-// Just returns "ok"
+// DefaultResponseBody Just returns "ok"
 func DefaultResponseBody() []byte {
 	return []byte(defaultOutput)
 }
 
-// Creates API gate
+// NewApi Creates API gate
 func NewApi(logger *zap.SugaredLogger, cfg config.Config, client HTTPClient, rnd Rnder) *Api {
 	return &Api{
 		logger: logger,
@@ -58,7 +58,7 @@ func NewApi(logger *zap.SugaredLogger, cfg config.Config, client HTTPClient, rnd
 	}
 }
 
-// Sends custom message with VK attachment
+// SendMessageWithAttachmentAndButton Sends custom message with VK attachment
 func (a *Api) SendMessageWithAttachmentAndButton(peerId int, msg string, attachment string, keyboard button.Keyboard) error {
 	var (
 		payload = OutcomeMessage{
@@ -90,7 +90,7 @@ func (a *Api) SendMessageWithAttachmentAndButton(peerId int, msg string, attachm
 	return a.send(payload)
 }
 
-// Sends message with keyboard
+// SendMessageWithButton Sends message with keyboard
 func (a *Api) SendMessageWithButton(peerId int, msg string, keyboard button.Keyboard) error {
 	var (
 		payload = OutcomeMessage{
