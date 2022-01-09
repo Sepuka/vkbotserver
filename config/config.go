@@ -17,10 +17,10 @@ type (
 	}
 
 	// Cache requests
-	// Ttl in ns, default is 1 min
+	// Ttl in ns, default is 1 sec
 	Cache struct {
 		Enabled bool
-		Ttl     time.Duration `default:"60000000000"`
+		Ttl     time.Duration `default:"1000000000"`
 	}
 )
 
