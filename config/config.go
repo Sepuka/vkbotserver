@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 type (
@@ -14,6 +15,11 @@ type (
 	Api struct {
 		Token string `default:"???_there_is_the_access_api_token"`
 	}
+
+	Cache struct {
+		Enabled bool
+		Ttl     time.Duration
+	}
 )
 
 // Config is struct which is filling by config from App path like /etc/app.yml
@@ -22,6 +28,7 @@ type Config struct {
 	Socket       string `default:"/var/run/vkbotserver.sock"`
 	Logger       Logger
 	Api          Api
+	Cache        Cache
 }
 
 func (api *Api) MaskedToken(params string) string {
