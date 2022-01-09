@@ -16,9 +16,11 @@ type (
 		Token string `default:"???_there_is_the_access_api_token"`
 	}
 
+	// Cache requests
+	// Ttl in ns, default is 1 min
 	Cache struct {
 		Enabled bool
-		Ttl     time.Duration
+		Ttl     time.Duration `default:"60000000000"`
 	}
 )
 

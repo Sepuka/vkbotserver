@@ -48,7 +48,7 @@ func Cache(cfg config.Config) func(handlerFunc HandlerFunc) HandlerFunc {
 				writer   *httpWriter
 				client   *redis.Client
 				ctx      = context.Background()
-				cacheKey = fmt.Sprintf(cacheKeyTmpl, req.Object.Message.FromId, req.Object.Message.Text)
+				cacheKey = fmt.Sprintf(cacheKeyTmpl, req.Object.Message.PeerId, req.Object.Message.Text)
 				cache    *redis.StringCmd
 				value    []byte
 				err      error
@@ -59,7 +59,7 @@ func Cache(cfg config.Config) func(handlerFunc HandlerFunc) HandlerFunc {
 				if client != nil {
 					cache = client.Get(ctx, cacheKey)
 					if cache != nil {
-						if value, err = cache.Bytes(); err != nil {
+						if value, err = cache.Bytes(); err == nil && len(value) > 0 {
 							_, err = w.Write(value)
 
 							return err
