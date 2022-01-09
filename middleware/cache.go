@@ -41,7 +41,7 @@ func Cache(cfg config.Config) func(handlerFunc HandlerFunc) HandlerFunc {
 	return func(next HandlerFunc) HandlerFunc {
 		return func(exec message.Executor, req *domain.Request, w http.ResponseWriter) error {
 			const (
-				cacheKeyTmpl = `%d_%s`
+				cacheKeyTmpl = `vkbot_server_middleware_cache_%d_%s`
 			)
 
 			var (
