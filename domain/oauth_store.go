@@ -1,7 +1,8 @@
 package domain
 
 const (
-	CookieName = `token`
+	CookieName         = `token`
+	OauthVkHandlerName = `vk_auth`
 )
 
 type (

@@ -157,7 +157,7 @@ func (s *SocketServer) buildOAuthCallback(r *http.Request) (*domain.Request, err
 	}
 
 	if u.Path == s.cfg.VkOauth.VkPath {
-		return &domain.Request{Type: `vk_auth`, Context: r.URL.Path}, nil
+		return &domain.Request{Type: domain.OauthVkHandlerName, Context: r.URL.Path}, nil
 	}
 
 	return nil, errors2.NewNotIsOAuthReqError()

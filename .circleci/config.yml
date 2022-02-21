@@ -10,5 +10,4 @@ jobs:
     working_directory: /go/src/github.com/sepuka/vkbotserver
     steps:
       - checkout
-      - run: make dependencies
       - run: make tests

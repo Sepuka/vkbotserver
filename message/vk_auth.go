@@ -148,3 +148,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 
 	return nil
 }
+
+func (o *vkAuth) String() string {
+	return domain.OauthVkHandlerName
+}
