@@ -11,6 +11,7 @@ type confirmation struct {
 	cfg config.Config
 }
 
+// NewConfirmation creates a confirmation handler
 func NewConfirmation(cfg config.Config) *confirmation {
 	return &confirmation{
 		cfg: cfg,

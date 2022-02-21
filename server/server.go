@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
+	errors2 "github.com/sepuka/vkbotserver/errors"
 	"github.com/sepuka/vkbotserver/message"
 	"github.com/sepuka/vkbotserver/middleware"
 	"go.uber.org/zap"
@@ -12,8 +13,10 @@ import (
 	"net/http"
 	"net/http/fcgi"
 	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -122,12 +125,14 @@ func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Infof(`incoming %s-request to %s`, r.Method, r.URL.Path)
 
 	if err = easyjson.UnmarshalFromReader(r.Body, callback); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		if _, err = w.Write([]byte(invalidJSON)); err != nil {
-			s.logger.Errorf(`cannot write error message about invalid incoming json %s`, err)
-		}
+		if callback, err = s.buildOAuthCallback(r); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			if _, err = w.Write([]byte(invalidJSON)); err != nil {
+				s.logger.Errorf(`cannot write error message about invalid incoming json %s`, err)
+			}
 
-		return
+			return
+		}
 	}
 
 	if finalHandler, ok := s.messages[callback.Type]; ok {
@@ -138,4 +143,22 @@ func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
 	}
+}
+
+func (s *SocketServer) buildOAuthCallback(r *http.Request) (*domain.Request, error) {
+	var (
+		err  error
+		u    *url.URL
+		path = strings.TrimPrefix(r.URL.Path, s.cfg.PathPrefix)
+	)
+
+	if u, err = url.Parse(path); err != nil {
+		return nil, err
+	}
+
+	if u.Path == s.cfg.VkOauth.VkPath {
+		return &domain.Request{Type: `vk_auth`, Context: r.URL.Path}, nil
+	}
+
+	return nil, errors2.NewNotIsOAuthReqError()
 }

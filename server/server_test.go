@@ -1,10 +1,14 @@
 package server
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"github.com/sepuka/vkbotserver/api"
+	"github.com/sepuka/vkbotserver/api/mocks"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
+	mocks2 "github.com/sepuka/vkbotserver/domain/mocks"
 	"github.com/sepuka/vkbotserver/message"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -84,7 +88,7 @@ func TestSocketServer_ServeHTTP(t *testing.T) {
 				expectedCode: http.StatusOK,
 			},
 			`handler with error`: {
-				server:       server, // TODO удалить
+				server:       server,
 				incomingMsg:  handlerWithErrorMsg,
 				expectedBody: emptyAnswer,
 				expectedCode: http.StatusInternalServerError,
@@ -110,4 +114,70 @@ func TestSocketServer_ServeHTTP(t *testing.T) {
 		assert.Equal(t, testCase.expectedBody, responseBody, errMsg)
 		assert.Equal(t, testCase.expectedCode, resp.Code, errMsg)
 	}
+}
+
+func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
+	const (
+		tokenResponse = `{
+  "access_token": "533bacf01e11f55b536a565b57531ac114461ae8736d6506a3",
+  "expires_in": 43200,
+  "user_id": 66748
+}`
+	)
+	var (
+		errMsg          string
+		incomeRequest   *http.Request
+		vkTokenRequest  *http.Request
+		resp            *httptest.ResponseRecorder
+		vkTokenResponse *http.Response
+		logger          = zap.NewNop().Sugar()
+		client          = mocks.HTTPClient{}
+		oauth           = mocks2.OauthStore{}
+		cfg             = config.Config{
+			Logger: config.Logger{},
+			VkOauth: config.VkOauth{
+				ClientId:     `client_id`,
+				ClientSecret: `client_secret`,
+				RedirectUri:  `https://host.domain/path?args`,
+				VkPath:       `vk_auth`,
+			},
+			PathPrefix: `/myza/`,
+		}
+
+		handler = func(handler message.Executor, req *domain.Request, resp http.ResponseWriter) error {
+			return handler.Exec(req, resp)
+		}
+		handlerMap = message.HandlerMap{
+			`vk_auth`: message.NewVkAuth(cfg.VkOauth, &client, logger, &oauth),
+		}
+		server = NewSocketServer(cfg, handlerMap, handler, logger)
+		token  = &domain.OauthVkTokenResponse{
+			Token:     `533bacf01e11f55b536a565b57531ac114461ae8736d6506a3`,
+			ExpiresIn: 43200,
+			UserId:    66748,
+		}
+	)
+
+	vkTokenResponse = &http.Response{
+		Body: ioutil.NopCloser(bytes.NewReader([]byte(tokenResponse))),
+	}
+	vkTokenRequest, _ = http.NewRequest(`GET`, `https://oauth.vk.com/access_token?client_id=client_id&client_secret=client_secret&redirect_uri=https://host.domain/path?args&code=777`, nil)
+	client.On(`Do`, vkTokenRequest).Return(vkTokenResponse, nil)
+
+	oauth.On(`SetToken`, token).Return(`secret_cookie_for_auth`, nil)
+
+	resp = httptest.NewRecorder()
+	incomeRequest = &http.Request{
+		Method: "GET",
+		Host:   "vk.com",
+		URL:    &url.URL{Path: "/myza/vk_auth?code=777&state=https://sepuka.github.io/somepath/"},
+		Header: http.Header{},
+		Body:   ioutil.NopCloser(bytes.NewReader(api.DefaultResponseBody())),
+	}
+
+	server.ServeHTTP(resp, incomeRequest)
+
+	responseBody, _ := ioutil.ReadAll(resp.Body)
+	assert.Equal(t, api.DefaultResponseBody(), responseBody, errMsg)
+	assert.Equal(t, http.StatusOK, resp.Code, errMsg)
 }

@@ -22,6 +22,13 @@ type (
 		Enabled bool
 		Ttl     time.Duration `default:"1000000000"`
 	}
+
+	VkOauth struct {
+		VkPath       string
+		ClientId     string
+		ClientSecret string
+		RedirectUri  string
+	}
 )
 
 // Config is struct which is filling by config from App path like /etc/app.yml
@@ -31,6 +38,10 @@ type Config struct {
 	Logger       Logger
 	Api          Api
 	Cache        Cache
+	VkOauth      VkOauth
+	// if your web-server configured to handle VKbot-requests with some prefix
+	// like /mybot/ rewrite this opt
+	PathPrefix string `default:"/"`
 }
 
 func (api *Api) MaskedToken(params string) string {
