@@ -29,7 +29,7 @@ func TestVkAuth_Exec_ClientIdTrouble(t *testing.T) {
 		expectedOutcomeReq = &http.Request{}
 		expectedIncomeResp = &http.Response{}
 		logger             = zap.NewNop().Sugar()
-		oauthStore         = mocks2.OauthStore{}
+		userRepo           = mocks2.UserRepository{}
 		client             = mocks.HTTPClient{}
 		resp               = httptest.NewRecorder()
 		oauthCfg           = config.VkOauth{
@@ -52,7 +52,7 @@ func TestVkAuth_Exec_ClientIdTrouble(t *testing.T) {
 	expectedOutcomeReq, _ = http.NewRequest(`GET`, tokenUrl, nil)
 	client.On(`Do`, expectedOutcomeReq).Once().Return(expectedIncomeResp, nil)
 
-	executor = NewVkAuth(cfg.VkOauth, &client, logger, &oauthStore)
+	executor = NewVkAuth(cfg.VkOauth, &client, logger, &userRepo)
 
 	assert.ErrorIs(t, executor.Exec(incomeReq, resp), errors.OauthVkError)
 }

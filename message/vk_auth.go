@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
+	"time"
 )
 
 const (
@@ -19,10 +21,10 @@ const (
 )
 
 type vkAuth struct {
-	cfg        config.VkOauth
-	client     api.HTTPClient
-	logger     *zap.SugaredLogger
-	oAuthStore domain.OauthStore
+	cfg      config.VkOauth
+	client   api.HTTPClient
+	logger   *zap.SugaredLogger
+	userRepo domain.UserRepository
 }
 
 // NewVkAuth creates an instance VK VkOauth handler
@@ -30,13 +32,13 @@ func NewVkAuth(
 	cfg config.VkOauth,
 	client api.HTTPClient,
 	logger *zap.SugaredLogger,
-	oauth domain.OauthStore,
+	userRepo domain.UserRepository,
 ) *vkAuth {
 	return &vkAuth{
-		cfg:        cfg,
-		client:     client,
-		logger:     logger,
-		oAuthStore: oauth,
+		cfg:      cfg,
+		client:   client,
+		logger:   logger,
+		userRepo: userRepo,
 	}
 }
 
@@ -49,7 +51,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		tokenHttpRequest  *http.Request
 		dumpResponse      []byte
 		tokenResponse     = &domain.OauthVkTokenResponse{}
-		cookie            string
+		user              *domain.User
 	)
 
 	if args, err = url.ParseQuery(req.Context.(string)); err != nil {
@@ -130,19 +132,41 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		return errors.NewOauthVkError(tokenResponse.Error)
 	}
 
-	if cookie, err = o.oAuthStore.SetToken(tokenResponse); err != nil {
-		o.
-			logger.
-			With(
-				zap.Error(err),
-				zap.String(`oauth`, `VK`),
-			).
-			Error(`Saving oauth struct error`)
+	if user, err = o.userRepo.GetByExternalId(domain.OAuthVk, strconv.Itoa(tokenResponse.UserId)); err != nil {
+		if err == errors.NoUserFound {
+			user = &domain.User{
+				CreatedAt:  time.Time{},
+				UpdatedAt:  time.Time{},
+				OAuth:      domain.OAuthVk,
+				ExternalId: strconv.Itoa(tokenResponse.UserId),
+				Email:      tokenResponse.Email,
+				Token:      tokenResponse.Token,
+			}
+			if err = o.userRepo.Create(user); err != nil {
+				o.
+					logger.
+					With(
+						zap.String(`oauth`, `VK`),
+						zap.Error(err),
+					).
+					Error(`could not create oauth user`)
 
-		return err
+				return err
+			}
+		} else {
+			o.
+				logger.
+				With(
+					zap.String(`oauth`, `VK`),
+					zap.Error(err),
+				).
+				Error(`could not find oauth user`)
+
+			return err
+		}
 	}
 
-	http.SetCookie(resp, &http.Cookie{Name: domain.CookieName, Value: cookie})
+	http.SetCookie(resp, &http.Cookie{Name: domain.CookieName, Value: user.Token})
 
 	if _, err = resp.Write(api.DefaultResponseBody()); err != nil {
 		o.

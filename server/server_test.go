@@ -121,7 +121,8 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 		tokenResponse = `{
   "access_token": "533bacf01e11f55b536a565b57531ac114461ae8736d6506a3",
   "expires_in": 43200,
-  "user_id": 66748
+  "user_id": 66748,
+  "email": "email@host.com"
 }`
 		cookie = `533bacf01e11f55b536a565b57531ac114461ae8736d6506a3`
 	)
@@ -133,7 +134,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 		vkTokenResponse *http.Response
 		logger          = zap.NewNop().Sugar()
 		client          = mocks.HTTPClient{}
-		oauth           = mocks2.OauthStore{}
+		userRepo        = mocks2.UserRepository{}
 		cfg             = config.Config{
 			Logger: config.Logger{},
 			VkOauth: config.VkOauth{
@@ -149,14 +150,9 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 			return handler.Exec(req, resp)
 		}
 		handlerMap = message.HandlerMap{
-			`vk_auth`: message.NewVkAuth(cfg.VkOauth, &client, logger, &oauth),
+			`vk_auth`: message.NewVkAuth(cfg.VkOauth, &client, logger, &userRepo),
 		}
 		server = NewSocketServer(cfg, handlerMap, handler, logger)
-		token  = &domain.OauthVkTokenResponse{
-			Token:     cookie,
-			ExpiresIn: 43200,
-			UserId:    66748,
-		}
 	)
 
 	vkTokenResponse = &http.Response{
@@ -165,7 +161,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 	vkTokenRequest, _ = http.NewRequest(`GET`, `https://oauth.vk.com/access_token?client_id=client_id&client_secret=client_secret&redirect_uri=https://host.domain/path?args&code=777`, nil)
 	client.On(`Do`, vkTokenRequest).Return(vkTokenResponse, nil)
 
-	oauth.On(`SetToken`, token).Return(cookie, nil)
+	userRepo.On(`GetByExternalId`, domain.OAuthVk, `66748`).Return(&domain.User{Token: cookie}, nil)
 
 	resp = httptest.NewRecorder()
 	incomeRequest = &http.Request{
