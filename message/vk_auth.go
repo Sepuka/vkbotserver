@@ -6,6 +6,7 @@ import (
 	"github.com/sepuka/vkbotserver/api"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
+	"github.com/sepuka/vkbotserver/errors"
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/httputil"
@@ -115,6 +116,18 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 			Error(`Unmarshalling oauth response error`)
 
 		return err
+	}
+
+	if len(tokenResponse.Error) > 0 {
+		o.
+			logger.
+			With(
+				zap.String(`oauth`, `VK`),
+				zap.String(`description`, tokenResponse.ErrorDescription),
+			).
+			Error(`could not authorize`)
+
+		return errors.NewOauthVkError(tokenResponse.Error)
 	}
 
 	if cookie, err = o.oAuthStore.SetToken(tokenResponse); err != nil {

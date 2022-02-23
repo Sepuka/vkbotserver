@@ -20,3 +20,7 @@ func (e BotError) Error() string {
 func (e BotError) Is(target error) bool {
 	return e.err == target
 }
+
+func (e BotError) Unwrap() error {
+	return e.err
+}

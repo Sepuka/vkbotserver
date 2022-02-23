@@ -42,6 +42,12 @@ func easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain(in *jlexer.Lexer, ou
 			out.UserId = int32(in.Int32())
 		case "expires_in":
 			out.ExpiresIn = int32(in.Int32())
+		case "email":
+			out.Email = string(in.String())
+		case "error":
+			out.Error = string(in.String())
+		case "error_description":
+			out.ErrorDescription = string(in.String())
 		default:
 			in.SkipRecursive()
 		}
@@ -70,6 +76,21 @@ func easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain(out *jwriter.Writer,
 		const prefix string = ",\"expires_in\":"
 		out.RawString(prefix)
 		out.Int32(int32(in.ExpiresIn))
+	}
+	{
+		const prefix string = ",\"email\":"
+		out.RawString(prefix)
+		out.String(string(in.Email))
+	}
+	{
+		const prefix string = ",\"error\":"
+		out.RawString(prefix)
+		out.String(string(in.Error))
+	}
+	{
+		const prefix string = ",\"error_description\":"
+		out.RawString(prefix)
+		out.String(string(in.ErrorDescription))
 	}
 	out.RawByte('}')
 }
