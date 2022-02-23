@@ -41,7 +41,6 @@ func NewVkAuth(
 
 func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	var (
-		incomeRawReq      *url.URL
 		tokenUrl          string
 		err               error
 		args              url.Values
@@ -52,11 +51,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		cookie            string
 	)
 
-	if incomeRawReq, err = url.Parse(req.Context.(string)); err != nil {
-		return err
-	}
-
-	if args, err = url.ParseQuery(incomeRawReq.RawQuery); err != nil {
+	if args, err = url.ParseQuery(req.Context.(string)); err != nil {
 		return err
 	}
 

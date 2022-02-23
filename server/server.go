@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"net/http/fcgi"
 	"net/http/httputil"
-	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -147,17 +146,11 @@ func (s *SocketServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *SocketServer) buildOAuthCallback(r *http.Request) (*domain.Request, error) {
 	var (
-		err  error
-		u    *url.URL
 		path = strings.TrimPrefix(r.URL.Path, s.cfg.PathPrefix)
 	)
 
-	if u, err = url.Parse(path); err != nil {
-		return nil, err
-	}
-
-	if u.Path == s.cfg.VkOauth.VkPath {
-		return &domain.Request{Type: domain.OauthVkHandlerName, Context: r.URL.Path}, nil
+	if path == s.cfg.VkOauth.VkPath {
+		return &domain.Request{Type: domain.OauthVkHandlerName, Context: r.URL.RawQuery}, nil
 	}
 
 	return nil, errors2.NewNotIsOAuthReqError()

@@ -1,0 +1,15 @@
+server:
+    socket: /var/run/myza/server.sock
+    confirmation: XXXXXXXX
+    api:
+        token: XXX
+    cache:
+      enabled: true
+      ttl: 1000000000
+    pathprefix: /
+    vkoauth:
+        // redirect uri path of your app
+        vkpath: vk_auth
+        ClientId: 12345
+        ClientSecret: secret
+        RedirectUri: https://your.app
