@@ -4,10 +4,11 @@ const (
 	CookieName         = `token`
 	OauthVkHandlerName = `vk_auth`
 
-	AuthVk = iota
+	OAuthVk Oauth = 1 + iota
 )
 
 type (
+	Oauth      uint8
 	OauthStore interface {
 		GetToken(authCookie string) (authToken interface{}, err error)
 		SetToken(authToken interface{}) (cookie string, err error)
