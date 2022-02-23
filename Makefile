@@ -1,4 +1,4 @@
-tests:
+git tests:
 	go test ./...
 
 tidy:

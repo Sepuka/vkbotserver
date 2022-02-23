@@ -3,6 +3,8 @@ package domain
 const (
 	CookieName         = `token`
 	OauthVkHandlerName = `vk_auth`
+
+	AuthVk = iota
 )
 
 type (
