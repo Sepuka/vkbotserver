@@ -123,6 +123,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
   "expires_in": 43200,
   "user_id": 66748
 }`
+		cookie = `533bacf01e11f55b536a565b57531ac114461ae8736d6506a3`
 	)
 	var (
 		errMsg          string
@@ -152,7 +153,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 		}
 		server = NewSocketServer(cfg, handlerMap, handler, logger)
 		token  = &domain.OauthVkTokenResponse{
-			Token:     `533bacf01e11f55b536a565b57531ac114461ae8736d6506a3`,
+			Token:     cookie,
 			ExpiresIn: 43200,
 			UserId:    66748,
 		}
@@ -164,13 +165,16 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 	vkTokenRequest, _ = http.NewRequest(`GET`, `https://oauth.vk.com/access_token?client_id=client_id&client_secret=client_secret&redirect_uri=https://host.domain/path?args&code=777`, nil)
 	client.On(`Do`, vkTokenRequest).Return(vkTokenResponse, nil)
 
-	oauth.On(`SetToken`, token).Return(`secret_cookie_for_auth`, nil)
+	oauth.On(`SetToken`, token).Return(cookie, nil)
 
 	resp = httptest.NewRecorder()
 	incomeRequest = &http.Request{
 		Method: "GET",
 		Host:   "vk.com",
-		URL:    &url.URL{Path: "/myza/vk_auth?code=777&state=https://sepuka.github.io/somepath/"},
+		URL: &url.URL{
+			Path:     `/myza/vk_auth`,
+			RawQuery: `code=777&state=https://sepuka.github.io/somepath/`,
+		},
 		Header: http.Header{},
 		Body:   ioutil.NopCloser(bytes.NewReader(api.DefaultResponseBody())),
 	}
