@@ -6,7 +6,7 @@ const (
 	CookieName         = `token`
 	OauthVkHandlerName = `vk_auth`
 
-	OAuthVk Oauth = 1 + iota
+	OAuthVk Oauth = iota
 )
 
 type (

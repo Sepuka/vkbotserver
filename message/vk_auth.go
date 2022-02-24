@@ -17,6 +17,7 @@ import (
 
 const (
 	urlPartCode      = `code`
+	urlPartState     = `state`
 	tokenUrlTemplate = `https://oauth.vk.com/access_token?client_id=%s&client_secret=%s&redirect_uri=%s&code=%s`
 )
 
@@ -135,8 +136,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	if user, err = o.userRepo.GetByExternalId(domain.OAuthVk, strconv.Itoa(tokenResponse.UserId)); err != nil {
 		if err == errors.NoUserFound {
 			user = &domain.User{
-				CreatedAt:  time.Time{},
-				UpdatedAt:  time.Time{},
+				CreatedAt:  time.Now(),
 				OAuth:      domain.OAuthVk,
 				ExternalId: strconv.Itoa(tokenResponse.UserId),
 				Email:      tokenResponse.Email,
@@ -167,16 +167,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	}
 
 	http.SetCookie(resp, &http.Cookie{Name: domain.CookieName, Value: user.Token})
-
-	if _, err = resp.Write(api.DefaultResponseBody()); err != nil {
-		o.
-			logger.
-			With(
-				zap.Error(err),
-				zap.String(`oauth`, `VK`),
-			).
-			Error(`Could not save response body`)
-	}
+	http.Redirect(resp, &http.Request{}, args[urlPartState][0], http.StatusFound)
 
 	return nil
 }

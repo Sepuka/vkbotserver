@@ -177,7 +177,5 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 
 	server.ServeHTTP(resp, incomeRequest)
 
-	responseBody, _ := ioutil.ReadAll(resp.Body)
-	assert.Equal(t, api.DefaultResponseBody(), responseBody, errMsg)
-	assert.Equal(t, http.StatusOK, resp.Code, errMsg)
+	assert.Equal(t, http.StatusFound, resp.Code, errMsg)
 }
