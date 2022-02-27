@@ -13,3 +13,5 @@ server:
         ClientId: 12345
         ClientSecret: secret
         RedirectUri: https://your.app
+    yaoauth:
+        path: ya_auth
