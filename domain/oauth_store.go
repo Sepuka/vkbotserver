@@ -5,8 +5,11 @@ import "time"
 const (
 	CookieName         = `token`
 	OauthVkHandlerName = `vk_auth`
+)
 
+const (
 	OAuthVk Oauth = iota
+	OAuthYandex
 )
 
 type (
