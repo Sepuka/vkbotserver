@@ -22,6 +22,8 @@ type (
 		ExternalId string    `pg:"notnull"`
 		Email      string    `pg:"notnull"`
 		Token      string
+		FistName   string
+		LastName   string
 	}
 
 	// UserRepository offers an interface for create and fetch clients
