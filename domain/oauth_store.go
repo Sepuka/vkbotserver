@@ -30,5 +30,10 @@ type (
 	UserRepository interface {
 		GetByExternalId(auth Oauth, id string) (*User, error)
 		Create(user *User) error
+		Update(user *User) error
 	}
 )
+
+func (u *User) IsFilledPersonalData() bool {
+	return u.LastName != `` || u.FistName != ``
+}

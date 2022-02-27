@@ -16,24 +16,26 @@ import (
 )
 
 const (
-	OauthVkLogKey = `VK`
+	OauthVkLogKey    = `VK`
+	ver              = `5.170`
+	tokenUrlTemplate = `https://oauth.vk.com/access_token?client_id=%s&client_secret=%s&redirect_uri=%s&code=%s`
 )
 
-type vkAuth struct {
+type authVk struct {
 	cfg      config.VkOauth
 	client   api.HTTPClient
 	logger   *zap.SugaredLogger
 	userRepo domain.UserRepository
 }
 
-// NewVkAuth creates an instance VK VkOauth handler
-func NewVkAuth(
+// NewAuthVk creates an instance VK VkOauth handler
+func NewAuthVk(
 	cfg config.VkOauth,
 	client api.HTTPClient,
 	logger *zap.SugaredLogger,
 	userRepo domain.UserRepository,
-) *vkAuth {
-	return &vkAuth{
+) *authVk {
+	return &authVk{
 		cfg:      cfg,
 		client:   client,
 		logger:   logger,
@@ -41,11 +43,10 @@ func NewVkAuth(
 	}
 }
 
-func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
+func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	const (
-		urlPartCode      = `code`
-		urlPartState     = `state`
-		tokenUrlTemplate = `https://oauth.vk.com/access_token?client_id=%s&client_secret=%s&redirect_uri=%s&code=%s`
+		urlPartCode  = `code`
+		urlPartState = `state`
 	)
 
 	var (
@@ -170,12 +171,106 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		}
 	}
 
+	go o.fillUser(user)
+
 	http.SetCookie(resp, &http.Cookie{Name: domain.CookieName, Value: user.Token})
 	http.Redirect(resp, &http.Request{}, args[urlPartState][0], http.StatusFound)
 
 	return nil
 }
 
-func (o *vkAuth) String() string {
+func (o *authVk) fillUser(user *domain.User) {
+	const (
+		apiPathTmpl = `https://api.vk.com/method/users.get?api_token=%s&v=%s`
+	)
+
+	if user.IsFilledPersonalData() {
+		return
+	}
+
+	var (
+		err      error
+		path     = fmt.Sprintf(apiPathTmpl, user.Token, ver)
+		response *http.Response
+		request  *http.Request
+		dump     []byte
+		data     = &domain.UsersGetResponse{}
+	)
+
+	if request, err = http.NewRequest(`GET`, path, nil); err != nil {
+		o.
+			logger.
+			With(
+				zap.Error(err),
+				zap.String(`url`, path),
+				zap.String(`api`, `users.get`),
+			).
+			Error(`Build API request error`)
+
+		return
+	}
+
+	if response, err = o.client.Do(request); err != nil {
+		o.
+			logger.
+			With(
+				zap.Error(err),
+				zap.String(`url`, path),
+				zap.String(`api`, `users.get`),
+			).
+			Error(`Send API request error`)
+
+		return
+	}
+
+	if dump, err = httputil.DumpResponse(response, true); err != nil {
+		o.
+			logger.
+			With(
+				zap.Error(err),
+				zap.Int64(`size`, response.ContentLength),
+				zap.Int(`code`, response.StatusCode),
+				zap.String(`api`, `users.get`),
+			).
+			Error(`Dump response error`)
+
+		return
+	}
+
+	o.
+		logger.
+		With(
+			zap.String(`api`, `users.get`),
+			zap.ByteString(`response`, dump),
+		).
+		Info(`Oauth API response`)
+
+	if err = easyjson.UnmarshalFromReader(response.Body, data); err != nil {
+		o.
+			logger.
+			With(
+				zap.Error(err),
+				zap.String(`api`, `users.get`),
+			).
+			Error(`Unmarshalling oauth response error`)
+
+		return
+	}
+
+	user.FistName = data.FirstName
+	user.LastName = data.LastName
+
+	if err = o.userRepo.Update(user); err != nil {
+		o.
+			logger.
+			With(
+				zap.Error(err),
+				zap.String(`api`, `users.get`),
+			).
+			Error(`Update user info error`)
+	}
+}
+
+func (o *authVk) String() string {
 	return domain.OauthVkHandlerName
 }

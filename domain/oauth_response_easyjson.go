@@ -17,7 +17,101 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain(in *jlexer.Lexer, out *OauthVkTokenResponse) {
+func easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain(in *jlexer.Lexer, out *UsersGetResponse) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.Id = int(in.Int())
+		case "first_name":
+			out.FirstName = string(in.String())
+		case "last_name":
+			out.LastName = string(in.String())
+		case "can_access_closed":
+			out.CanAccessClosed = bool(in.Bool())
+		case "is_closed":
+			out.IsClosed = bool(in.Bool())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain(out *jwriter.Writer, in UsersGetResponse) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Int(int(in.Id))
+	}
+	{
+		const prefix string = ",\"first_name\":"
+		out.RawString(prefix)
+		out.String(string(in.FirstName))
+	}
+	{
+		const prefix string = ",\"last_name\":"
+		out.RawString(prefix)
+		out.String(string(in.LastName))
+	}
+	{
+		const prefix string = ",\"can_access_closed\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.CanAccessClosed))
+	}
+	{
+		const prefix string = ",\"is_closed\":"
+		out.RawString(prefix)
+		out.Bool(bool(in.IsClosed))
+	}
+	out.RawByte('}')
+}
+
+// MarshalJSON supports json.Marshaler interface
+func (v UsersGetResponse) MarshalJSON() ([]byte, error) {
+	w := jwriter.Writer{}
+	easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain(&w, v)
+	return w.Buffer.BuildBytes(), w.Error
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v UsersGetResponse) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain(w, v)
+}
+
+// UnmarshalJSON supports json.Unmarshaler interface
+func (v *UsersGetResponse) UnmarshalJSON(data []byte) error {
+	r := jlexer.Lexer{Data: data}
+	easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain(&r, v)
+	return r.Error()
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *UsersGetResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain(l, v)
+}
+func easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain1(in *jlexer.Lexer, out *OauthVkTokenResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -58,7 +152,7 @@ func easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain(out *jwriter.Writer, in OauthVkTokenResponse) {
+func easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain1(out *jwriter.Writer, in OauthVkTokenResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -98,23 +192,23 @@ func easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain(out *jwriter.Writer,
 // MarshalJSON supports json.Marshaler interface
 func (v OauthVkTokenResponse) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain(&w, v)
+	easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain1(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v OauthVkTokenResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain(w, v)
+	easyjson498abbe1EncodeGithubComSepukaVkbotserverDomain1(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *OauthVkTokenResponse) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain(&r, v)
+	easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain1(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *OauthVkTokenResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain(l, v)
+	easyjson498abbe1DecodeGithubComSepukaVkbotserverDomain1(l, v)
 }
