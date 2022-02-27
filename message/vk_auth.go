@@ -130,7 +130,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 			).
 			Error(`could not authorize`)
 
-		return errors.NewOauthVkError(tokenResponse.Error)
+		return errors.NewOauthError(tokenResponse.Error)
 	}
 
 	if user, err = o.userRepo.GetByExternalId(domain.OAuthVk, strconv.Itoa(tokenResponse.UserId)); err != nil {

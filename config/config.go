@@ -29,9 +29,13 @@ type (
 		ClientSecret string
 		RedirectUri  string
 	}
+
+	YaOauth struct {
+		Path string
+	}
 )
 
-// Config is struct which is filling by config from App path like /etc/app.yml
+// Config is the struct which is filling by config from App path like /etc/app.yml
 type Config struct {
 	Confirmation string
 	Socket       string `default:"/var/run/vkbotserver.sock"`
@@ -39,6 +43,7 @@ type Config struct {
 	Api          Api
 	Cache        Cache
 	VkOauth      VkOauth
+	YaOauth      YaOauth
 	// if your web-server configured to handle VKbot-requests with some prefix
 	// like /mybot/ rewrite this opt
 	PathPrefix string `default:"/"`

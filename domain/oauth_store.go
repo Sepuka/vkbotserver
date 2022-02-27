@@ -3,18 +3,17 @@ package domain
 import "time"
 
 const (
-	CookieName         = `token`
-	OauthVkHandlerName = `vk_auth`
-)
-
-const (
-	OAuthVk Oauth = iota
-	OAuthYandex
+	CookieName               = `token`
+	OauthVkHandlerName       = `vk_auth`
+	OauthYaHandlerName       = `ya_auth`
+	OAuthYa            Oauth = 1
+	OAuthVk            Oauth = 2
 )
 
 type (
 	Oauth uint8
 
+	// User refers to internal client who's bound with some Oauth network
 	User struct {
 		UserId     int       `sql:",pk"`
 		CreatedAt  time.Time `pg:"notnull"`
@@ -25,6 +24,7 @@ type (
 		Token      string
 	}
 
+	// UserRepository offers an interface for create and fetch clients
 	UserRepository interface {
 		GetByExternalId(auth Oauth, id string) (*User, error)
 		Create(user *User) error

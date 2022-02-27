@@ -54,5 +54,5 @@ func TestVkAuth_Exec_ClientIdTrouble(t *testing.T) {
 
 	executor = NewVkAuth(cfg.VkOauth, &client, logger, &userRepo)
 
-	assert.ErrorIs(t, executor.Exec(incomeReq, resp), errors.OauthVkError)
+	assert.ErrorIs(t, executor.Exec(incomeReq, resp), errors.OauthError)
 }

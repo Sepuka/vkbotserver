@@ -5,7 +5,7 @@ import "errors"
 var (
 	InvalidJson       = errors.New(`invalid JSON`)
 	NotIsOAuthRequest = errors.New(`not is an OAuth request`)
-	OauthVkError      = errors.New(`oauth VK error`)
+	OauthError        = errors.New(`oauth error`)
 	NoUserFound       = errors.New(`there are any user was found`)
 )
 
@@ -24,9 +24,9 @@ func NewNotIsOAuthReqError() BotError {
 	}
 }
 
-func NewOauthVkError(msg string) BotError {
+func NewOauthError(msg string) BotError {
 	return BotError{
-		err:     OauthVkError,
+		err:     OauthError,
 		message: msg,
 	}
 }
