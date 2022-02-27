@@ -16,9 +16,7 @@ import (
 )
 
 const (
-	urlPartCode      = `code`
-	urlPartState     = `state`
-	tokenUrlTemplate = `https://oauth.vk.com/access_token?client_id=%s&client_secret=%s&redirect_uri=%s&code=%s`
+	OauthVkLogKey = `VK`
 )
 
 type vkAuth struct {
@@ -44,6 +42,12 @@ func NewVkAuth(
 }
 
 func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
+	const (
+		urlPartCode      = `code`
+		urlPartState     = `state`
+		tokenUrlTemplate = `https://oauth.vk.com/access_token?client_id=%s&client_secret=%s&redirect_uri=%s&code=%s`
+	)
+
 	var (
 		tokenUrl          string
 		err               error
@@ -66,7 +70,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 			logger.
 			With(
 				zap.Error(err),
-				zap.String(`oauth`, `VK`),
+				zap.String(`oauth`, OauthVkLogKey),
 				zap.String(`url`, tokenUrl),
 			).
 			Error(`Build oauth token API request error`)
@@ -79,7 +83,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 			logger.
 			With(
 				zap.Error(err),
-				zap.String(`oauth`, `VK`),
+				zap.String(`oauth`, OauthVkLogKey),
 				zap.String(`url`, tokenUrl),
 			).
 			Error(`Send oauth token API request error`)
@@ -92,7 +96,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 			logger.
 			With(
 				zap.Error(err),
-				zap.String(`oauth`, `VK`),
+				zap.String(`oauth`, OauthVkLogKey),
 				zap.Int64(`size`, tokenHttpResponse.ContentLength),
 				zap.Int(`code`, tokenHttpResponse.StatusCode),
 			).
@@ -104,7 +108,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	o.
 		logger.
 		With(
-			zap.String(`oauth`, `VK`),
+			zap.String(`oauth`, OauthVkLogKey),
 			zap.ByteString(`response`, dumpResponse),
 		).
 		Info(`Oauth API response`)
@@ -114,7 +118,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 			logger.
 			With(
 				zap.Error(err),
-				zap.String(`oauth`, `VK`),
+				zap.String(`oauth`, OauthVkLogKey),
 			).
 			Error(`Unmarshalling oauth response error`)
 
@@ -125,7 +129,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		o.
 			logger.
 			With(
-				zap.String(`oauth`, `VK`),
+				zap.String(`oauth`, OauthVkLogKey),
 				zap.String(`description`, tokenResponse.ErrorDescription),
 			).
 			Error(`could not authorize`)
@@ -146,7 +150,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 				o.
 					logger.
 					With(
-						zap.String(`oauth`, `VK`),
+						zap.String(`oauth`, OauthVkLogKey),
 						zap.Error(err),
 					).
 					Error(`could not create oauth user`)
@@ -157,7 +161,7 @@ func (o *vkAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 			o.
 				logger.
 				With(
-					zap.String(`oauth`, `VK`),
+					zap.String(`oauth`, OauthVkLogKey),
 					zap.Error(err),
 				).
 				Error(`could not find oauth user`)
