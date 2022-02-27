@@ -21,7 +21,7 @@ func TestYaAuth_Exec(t *testing.T) {
 
 		incomeReq = &domain.Request{
 			Type:    domain.OauthYaHandlerName,
-			Context: `ya_auth#access_token=&expires_in=86400&token_type=bearer&error=access_denied&error_description=description`,
+			Context: `ya_auth#error=invalid_request&error_description=%D0%92%D1%8B%D0%B1%D1%80%D0%B0%D0%BD%D0%BD%D1%8B%D0%B9%20redirect_uri%20%D0%BD%D0%B5%D0%B1%D0%B5%D0%B7%D0%BE%D0%BF%D0%B0%D1%81%D0%B5%D0%BD`,
 		}
 
 		cfg      = config.Config{}

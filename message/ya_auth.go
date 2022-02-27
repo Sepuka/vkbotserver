@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -37,19 +38,22 @@ func NewYaAuth(
 
 func (o *YaAuth) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	const (
+		oauthPrefix        = `ya_auth#`
 		urlPartToken       = `access_token`
 		errPartCode        = `error`
 		errPartDescription = `error_description`
 	)
 
 	var (
+		rawArgs   string
 		args      url.Values
 		err       error
 		errorCode string
 		//user *domain.User
 	)
 
-	if args, err = url.ParseQuery(req.Context.(string)); err != nil {
+	rawArgs = strings.TrimPrefix(req.Context.(string), oauthPrefix)
+	if args, err = url.ParseQuery(rawArgs); err != nil {
 		return err
 	}
 
