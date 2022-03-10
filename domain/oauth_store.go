@@ -22,7 +22,7 @@ type (
 		ExternalId string    `pg:"notnull"`
 		Email      string    `pg:"notnull"`
 		Token      string
-		FistName   string
+		FirstName  string
 		LastName   string
 	}
 
