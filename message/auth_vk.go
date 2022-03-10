@@ -7,7 +7,6 @@ import (
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
 	"github.com/sepuka/vkbotserver/errors"
-	"go.uber.org/zap"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -258,7 +257,7 @@ func (o *authVk) fillUser(user *domain.User) {
 		return
 	}
 
-	user.FistName = data.FirstName
+	user.FirstName = data.FirstName
 	user.LastName = data.LastName
 
 	if err = o.userRepo.Update(user); err != nil {

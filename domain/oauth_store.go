@@ -35,5 +35,5 @@ type (
 )
 
 func (u *User) IsFilledPersonalData() bool {
-	return u.LastName != `` || u.FistName != ``
+	return u.LastName != `` || u.FirstName != ``
 }
