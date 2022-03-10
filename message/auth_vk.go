@@ -170,6 +170,16 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 
 			return err
 		}
+	} else {
+		user.Token = tokenResponse.Token
+		if err = o.userRepo.Update(user); err != nil {
+			o.
+				logger.
+				With(
+					zap.Error(err),
+				).
+				Error(`Update user's token error`)
+		}
 	}
 
 	go o.fillUser(user)
