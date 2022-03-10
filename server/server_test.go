@@ -145,6 +145,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 			},
 			PathPrefix: `/myza/`,
 		}
+		user *domain.User
 
 		handler = func(handler message.Executor, req *domain.Request, resp http.ResponseWriter) error {
 			return handler.Exec(req, resp)
@@ -161,7 +162,10 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 	vkTokenRequest, _ = http.NewRequest(`GET`, `https://oauth.vk.com/access_token?client_id=client_id&client_secret=client_secret&redirect_uri=https://host.domain/path?args&code=777`, nil)
 	client.On(`Do`, vkTokenRequest).Return(vkTokenResponse, nil)
 
-	userRepo.On(`GetByExternalId`, domain.OAuthVk, `66748`).Return(&domain.User{Token: cookie}, nil)
+	user = &domain.User{Token: cookie}
+	userRepo.On(`GetByExternalId`, domain.OAuthVk, `66748`).Return(user, nil)
+	// updating users`s token
+	userRepo.On(`Update`, user).Return(nil)
 
 	resp = httptest.NewRecorder()
 	incomeRequest = &http.Request{
