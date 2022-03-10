@@ -7,6 +7,7 @@ import (
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
 	"github.com/sepuka/vkbotserver/errors"
+	"go.uber.org/zap"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
