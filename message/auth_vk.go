@@ -58,6 +58,7 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		dumpResponse      []byte
 		tokenResponse     = &domain.OauthVkTokenResponse{}
 		user              *domain.User
+		redirectUrl       string
 	)
 
 	if args, err = url.ParseQuery(req.Context.(string)); err != nil {
@@ -173,8 +174,8 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 
 	go o.fillUser(user)
 
-	http.SetCookie(resp, &http.Cookie{Name: domain.CookieName, Value: user.Token})
-	http.Redirect(resp, &http.Request{}, args[urlPartState][0], http.StatusFound)
+	redirectUrl = fmt.Sprintf(`%s?token=%s`, args[urlPartState][0], user.Token)
+	http.Redirect(resp, &http.Request{}, redirectUrl, http.StatusFound)
 
 	return nil
 }
