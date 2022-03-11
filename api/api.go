@@ -48,7 +48,7 @@ func DefaultResponseBody() []byte {
 	return []byte(defaultOutput)
 }
 
-// NewApi Creates API gate
+// NewApi Creates API gate in order to communicate with VK
 func NewApi(logger *zap.SugaredLogger, cfg config.Config, client HTTPClient, rnd Rnder) *Api {
 	return &Api{
 		logger: logger,

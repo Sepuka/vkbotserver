@@ -151,7 +151,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 			return handler.Exec(req, resp)
 		}
 		handlerMap = message.HandlerMap{
-			`vk_auth`: message.NewAuthVk(cfg.VkOauth, &client, logger, &userRepo),
+			`vk_auth`: message.NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, nil),
 		}
 		server = NewSocketServer(cfg, handlerMap, handler, logger)
 	)
@@ -162,7 +162,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 	vkTokenRequest, _ = http.NewRequest(`GET`, `https://oauth.vk.com/access_token?client_id=client_id&client_secret=client_secret&redirect_uri=https://host.domain/path?args&code=777`, nil)
 	client.On(`Do`, vkTokenRequest).Return(vkTokenResponse, nil)
 
-	user = &domain.User{Token: cookie}
+	user = &domain.User{Token: cookie, LastName: `some last name`, FirstName: `some first name`}
 	userRepo.On(`GetByExternalId`, domain.OAuthVk, `66748`).Return(user, nil)
 	// updating users`s token
 	userRepo.On(`Update`, user).Return(nil)

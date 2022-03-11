@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mailru/easyjson"
 	"github.com/sepuka/vkbotserver/api"
+	"github.com/sepuka/vkbotserver/api/users"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
 	"github.com/sepuka/vkbotserver/errors"
@@ -17,15 +18,15 @@ import (
 
 const (
 	OauthVkLogKey    = `VK`
-	ver              = `5.170`
 	tokenUrlTemplate = `https://oauth.vk.com/access_token?client_id=%s&client_secret=%s&redirect_uri=%s&code=%s`
 )
 
 type authVk struct {
-	cfg      config.VkOauth
-	client   api.HTTPClient
-	logger   *zap.SugaredLogger
-	userRepo domain.UserRepository
+	cfg         config.VkOauth
+	client      api.HTTPClient
+	logger      *zap.SugaredLogger
+	userRepo    domain.UserRepository
+	apiUsersGet *users.Get
 }
 
 // NewAuthVk creates an instance VK VkOauth handler
@@ -34,12 +35,14 @@ func NewAuthVk(
 	client api.HTTPClient,
 	logger *zap.SugaredLogger,
 	userRepo domain.UserRepository,
+	apiUsersGet *users.Get,
 ) *authVk {
 	return &authVk{
-		cfg:      cfg,
-		client:   client,
-		logger:   logger,
-		userRepo: userRepo,
+		cfg:         cfg,
+		client:      client,
+		logger:      logger,
+		userRepo:    userRepo,
+		apiUsersGet: apiUsersGet,
 	}
 }
 
@@ -182,104 +185,14 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		}
 	}
 
-	go o.fillUser(user)
+	if !user.IsFilledPersonalData() {
+		go o.apiUsersGet.FillUser(user)
+	}
 
 	redirectUrl = fmt.Sprintf(`%s?token=%s`, args[urlPartState][0], user.Token)
 	http.Redirect(resp, &http.Request{}, redirectUrl, http.StatusFound)
 
 	return nil
-}
-
-func (o *authVk) fillUser(user *domain.User) {
-	const (
-		apiPathTmpl = `https://api.vk.com/method/users.get?api_token=%s&v=%s`
-	)
-
-	if user.IsFilledPersonalData() {
-		return
-	}
-
-	var (
-		err      error
-		path     = fmt.Sprintf(apiPathTmpl, user.Token, ver)
-		response *http.Response
-		request  *http.Request
-		dump     []byte
-		data     = &domain.UsersGetResponse{}
-	)
-
-	if request, err = http.NewRequest(`GET`, path, nil); err != nil {
-		o.
-			logger.
-			With(
-				zap.Error(err),
-				zap.String(`url`, path),
-				zap.String(`api`, `users.get`),
-			).
-			Error(`Build API request error`)
-
-		return
-	}
-
-	if response, err = o.client.Do(request); err != nil {
-		o.
-			logger.
-			With(
-				zap.Error(err),
-				zap.String(`url`, path),
-				zap.String(`api`, `users.get`),
-			).
-			Error(`Send API request error`)
-
-		return
-	}
-
-	if dump, err = httputil.DumpResponse(response, true); err != nil {
-		o.
-			logger.
-			With(
-				zap.Error(err),
-				zap.Int64(`size`, response.ContentLength),
-				zap.Int(`code`, response.StatusCode),
-				zap.String(`api`, `users.get`),
-			).
-			Error(`Dump response error`)
-
-		return
-	}
-
-	o.
-		logger.
-		With(
-			zap.String(`api`, `users.get`),
-			zap.ByteString(`response`, dump),
-		).
-		Info(`Oauth API response`)
-
-	if err = easyjson.UnmarshalFromReader(response.Body, data); err != nil {
-		o.
-			logger.
-			With(
-				zap.Error(err),
-				zap.String(`api`, `users.get`),
-			).
-			Error(`Unmarshalling oauth response error`)
-
-		return
-	}
-
-	user.FirstName = data.FirstName
-	user.LastName = data.LastName
-
-	if err = o.userRepo.Update(user); err != nil {
-		o.
-			logger.
-			With(
-				zap.Error(err),
-				zap.String(`api`, `users.get`),
-			).
-			Error(`Update user info error`)
-	}
 }
 
 func (o *authVk) String() string {
