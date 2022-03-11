@@ -10,12 +10,11 @@ type (
 		Error            string `json:"error"`
 		ErrorDescription string `json:"error_description"`
 	}
-	UsersGetResponse struct {
+	VkUser struct {
 		Id              int    `json:"id"`
 		FirstName       string `json:"first_name"`
 		LastName        string `json:"last_name"`
 		CanAccessClosed bool   `json:"can_access_closed"`
 		IsClosed        bool   `json:"is_closed"`
-		Error           Error  `json:"error"`
 	}
 )

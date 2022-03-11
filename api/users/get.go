@@ -34,12 +34,13 @@ func NewGet(
 
 func (o *Get) FillUser(user *domain.User) {
 	var (
-		err      error
-		path     = fmt.Sprintf(apiPathTmpl, api.Endpoint, user.Token, api.Version)
-		response *http.Response
-		request  *http.Request
-		dump     []byte
-		data     = &domain.UsersGetResponse{}
+		err         error
+		path        = fmt.Sprintf(apiPathTmpl, api.Endpoint, user.Token, api.Version)
+		response    *http.Response
+		request     *http.Request
+		dump        []byte
+		apiResponse = &domain.ApiResponse{}
+		apiUser     *domain.VkUser
 	)
 
 	if request, err = http.NewRequest(`GET`, path, nil); err != nil {
@@ -88,9 +89,9 @@ func (o *Get) FillUser(user *domain.User) {
 			zap.String(`api`, `users.get`),
 			zap.ByteString(`response`, dump),
 		).
-		Info(`Oauth API response`)
+		Info(`VK API response`)
 
-	if err = easyjson.UnmarshalFromReader(response.Body, data); err != nil {
+	if err = easyjson.UnmarshalFromReader(response.Body, apiResponse); err != nil {
 		o.
 			logger.
 			With(
@@ -102,12 +103,12 @@ func (o *Get) FillUser(user *domain.User) {
 		return
 	}
 
-	if data.Error.ErrorCode > 0 {
+	if apiResponse.Error.ErrorCode > 0 {
 		o.
 			logger.
 			With(
-				zap.String(`message`, data.Error.ErrorMessage),
-				zap.Int(`code`, data.Error.ErrorCode),
+				zap.String(`message`, apiResponse.Error.ErrorMessage),
+				zap.Int(`code`, apiResponse.Error.ErrorCode),
 				zap.String(`api`, `users.get`),
 			).
 			Error(`Response has an error`)
@@ -115,8 +116,9 @@ func (o *Get) FillUser(user *domain.User) {
 		return
 	}
 
-	user.FirstName = data.FirstName
-	user.LastName = data.LastName
+	apiUser = &apiResponse.Response[0]
+	user.FirstName = apiUser.FirstName
+	user.LastName = apiUser.LastName
 
 	if err = o.userRepo.Update(user); err != nil {
 		o.
