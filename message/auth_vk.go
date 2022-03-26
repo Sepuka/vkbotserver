@@ -48,8 +48,7 @@ func NewAuthVk(
 
 func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	const (
-		urlPartCode  = `code`
-		urlPartState = `state`
+		urlPartCode = `code`
 	)
 
 	var (
@@ -61,7 +60,7 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		dumpResponse      []byte
 		tokenResponse     = &domain.OauthVkTokenResponse{}
 		user              *domain.User
-		redirectUrl       string
+		siteUrl           *url.URL
 	)
 
 	if args, err = url.ParseQuery(req.Context.(string)); err != nil {
@@ -189,8 +188,21 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		go o.apiUsersGet.FillUser(user)
 	}
 
-	redirectUrl = fmt.Sprintf(`%s?token=%s`, args[urlPartState][0], user.Token)
-	http.Redirect(resp, &http.Request{}, redirectUrl, http.StatusFound)
+	if siteUrl, err = url.Parse(o.cfg.RedirectUri); err != nil {
+		o.
+			logger.
+			With(
+				zap.Error(err),
+				zap.String(`cfg url`, o.cfg.RedirectUri),
+			).
+			Error(`Could not build redirect url`)
+
+		return nil
+	}
+	siteUrl.Path = `/`
+
+	http.SetCookie(resp, &http.Cookie{Name: domain.CookieName, Value: user.Token})
+	http.Redirect(resp, &http.Request{}, siteUrl.String(), http.StatusFound)
 
 	return nil
 }
