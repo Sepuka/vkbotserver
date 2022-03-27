@@ -151,7 +151,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 			return handler.Exec(req, resp)
 		}
 		handlerMap = message.HandlerMap{
-			`vk_auth`: message.NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, nil),
+			`vk_auth`: message.NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, []domain.Callback{}),
 		}
 		server = NewSocketServer(cfg, handlerMap, handler, logger)
 	)

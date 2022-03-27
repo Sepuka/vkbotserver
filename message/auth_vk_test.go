@@ -52,7 +52,7 @@ func TestVkAuth_Exec_ClientIdTrouble(t *testing.T) {
 	expectedOutcomeReq, _ = http.NewRequest(`GET`, tokenUrl, nil)
 	client.On(`Do`, expectedOutcomeReq).Once().Return(expectedIncomeResp, nil)
 
-	executor = NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, nil)
+	executor = NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, []domain.Callback{})
 
 	assert.ErrorIs(t, executor.Exec(incomeReq, resp), errors.OauthError)
 }
@@ -102,7 +102,7 @@ func TestVkAuth_Exec_UserNameDoNotUpdateWhenItFilled(t *testing.T) {
 	// Update user`s token every time when it is possible
 	userRepo.On(`Update`, someExistsUser).Return(nil)
 
-	executor = NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, nil)
+	executor = NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, []domain.Callback{})
 
 	assert.Nil(t, executor.Exec(incomeReq, resp))
 }

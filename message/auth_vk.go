@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/mailru/easyjson"
 	"github.com/sepuka/vkbotserver/api"
-	"github.com/sepuka/vkbotserver/api/users"
 	"github.com/sepuka/vkbotserver/config"
 	"github.com/sepuka/vkbotserver/domain"
 	"github.com/sepuka/vkbotserver/errors"
@@ -22,11 +21,11 @@ const (
 )
 
 type authVk struct {
-	cfg         config.VkOauth
-	client      api.HTTPClient
-	logger      *zap.SugaredLogger
-	userRepo    domain.UserRepository
-	apiUsersGet *users.Get
+	cfg       config.VkOauth
+	client    api.HTTPClient
+	logger    *zap.SugaredLogger
+	userRepo  domain.UserRepository
+	callbacks []domain.Callback
 }
 
 // NewAuthVk creates an instance VK VkOauth handler
@@ -35,14 +34,14 @@ func NewAuthVk(
 	client api.HTTPClient,
 	logger *zap.SugaredLogger,
 	userRepo domain.UserRepository,
-	apiUsersGet *users.Get,
+	callbacks []domain.Callback,
 ) *authVk {
 	return &authVk{
-		cfg:         cfg,
-		client:      client,
-		logger:      logger,
-		userRepo:    userRepo,
-		apiUsersGet: apiUsersGet,
+		cfg:       cfg,
+		client:    client,
+		logger:    logger,
+		userRepo:  userRepo,
+		callbacks: callbacks,
 	}
 }
 
@@ -61,6 +60,7 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		tokenResponse     = &domain.OauthVkTokenResponse{}
 		user              *domain.User
 		siteUrl           *url.URL
+		callback          domain.Callback
 	)
 
 	if args, err = url.ParseQuery(req.Context.(string)); err != nil {
@@ -184,8 +184,8 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		}
 	}
 
-	if !user.IsFilledPersonalData() {
-		go o.apiUsersGet.FillUser(user)
+	for _, callback = range o.callbacks {
+		go callback()
 	}
 
 	if siteUrl, err = url.Parse(o.cfg.RedirectUri); err != nil {
