@@ -185,7 +185,7 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	}
 
 	for _, callback = range o.callbacks {
-		go callback()
+		go callback(user)
 	}
 
 	if siteUrl, err = url.Parse(o.cfg.RedirectUri); err != nil {
