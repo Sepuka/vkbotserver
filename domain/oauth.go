@@ -1,5 +1,5 @@
 package domain
 
 type (
-	Callback func()
+	Callback func(interface{})
 )
