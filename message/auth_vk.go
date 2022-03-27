@@ -61,6 +61,12 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 		user              *domain.User
 		siteUrl           *url.URL
 		callback          domain.Callback
+		cookie            = &http.Cookie{
+			Name:     domain.CookieName,
+			HttpOnly: true,
+			Secure:   true,
+			Expires:  time.Now().Add(time.Hour * 24 * 365),
+		}
 	)
 
 	if args, err = url.ParseQuery(req.Context.(string)); err != nil {
@@ -201,7 +207,8 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	}
 	siteUrl.Path = `/`
 
-	http.SetCookie(resp, &http.Cookie{Name: domain.CookieName, Value: user.Token})
+	cookie.Value = user.Token
+	http.SetCookie(resp, cookie)
 	http.Redirect(resp, &http.Request{}, siteUrl.String(), http.StatusFound)
 
 	return nil
