@@ -11,7 +11,7 @@ type (
 	Logger struct {
 		Prod bool
 	}
-	// API config
+	// Api config
 	Api struct {
 		Token string `default:"???_there_is_the_access_api_token"`
 	}
@@ -28,6 +28,7 @@ type (
 		ClientId     string
 		ClientSecret string
 		RedirectUri  string
+		CookieTtl    string
 	}
 
 	YaOauth struct {

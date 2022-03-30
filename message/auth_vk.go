@@ -65,9 +65,15 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 			Name:     domain.CookieName,
 			HttpOnly: true,
 			Secure:   true,
-			Expires:  time.Now().Add(time.Hour * 24 * 365),
+			Path:     `/`,
 		}
 	)
+
+	var cookieTtl time.Duration
+	if cookieTtl, err = time.ParseDuration(o.cfg.CookieTtl); err != nil {
+		cookieTtl = time.Hour * 24 * 365
+	}
+	cookie.Expires = time.Now().Add(cookieTtl)
 
 	if args, err = url.ParseQuery(req.Context.(string)); err != nil {
 		return err
