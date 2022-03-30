@@ -13,5 +13,6 @@ server:
         ClientId: 12345
         ClientSecret: secret
         RedirectUri: https://your.app
+        CookieTtl: 1h // cookie ttl is a 1 hour (delete cause increase it to 1 year)
     yaoauth:
         path: ya_auth
