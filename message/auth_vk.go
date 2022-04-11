@@ -25,6 +25,7 @@ type authVk struct {
 	client    api.HTTPClient
 	logger    *zap.SugaredLogger
 	userRepo  domain.UserRepository
+	sessions  domain.SessionsRepository
 	callbacks []domain.Callback
 }
 
@@ -34,6 +35,7 @@ func NewAuthVk(
 	client api.HTTPClient,
 	logger *zap.SugaredLogger,
 	userRepo domain.UserRepository,
+	sessionsRepo domain.SessionsRepository,
 	callbacks []domain.Callback,
 ) *authVk {
 	return &authVk{
@@ -41,6 +43,7 @@ func NewAuthVk(
 		client:    client,
 		logger:    logger,
 		userRepo:  userRepo,
+		sessions:  sessionsRepo,
 		callbacks: callbacks,
 	}
 }
@@ -184,16 +187,15 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 
 			return err
 		}
-	} else {
-		user.Token = tokenResponse.Token
-		if err = o.userRepo.Update(user); err != nil {
-			o.
-				logger.
-				With(
-					zap.Error(err),
-				).
-				Error(`Update user's token error`)
-		}
+	}
+
+	if err = o.sessions.Create(user, tokenResponse.Token); err != nil {
+		o.
+			logger.
+			With(
+				zap.Error(err),
+			).
+			Error(`Could not create session`)
 	}
 
 	for _, callback = range o.callbacks {

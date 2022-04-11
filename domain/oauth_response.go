@@ -9,6 +9,7 @@ type (
 		Email            string `json:"email"`
 		Error            string `json:"error"`
 		ErrorDescription string `json:"error_description"`
+		Active           bool   `json:"active"`
 	}
 	VkUser struct {
 		Id              int    `json:"id"`

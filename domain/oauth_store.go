@@ -32,6 +32,10 @@ type (
 		Create(user *User) error
 		Update(user *User) error
 	}
+
+	SessionsRepository interface {
+		Create(user *User, token string) error
+	}
 )
 
 func (u *User) IsFilledPersonalData() bool {

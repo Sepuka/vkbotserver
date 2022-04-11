@@ -30,6 +30,7 @@ func TestVkAuth_Exec_ClientIdTrouble(t *testing.T) {
 		expectedIncomeResp = &http.Response{}
 		logger             = zap.NewNop().Sugar()
 		userRepo           = mocks2.UserRepository{}
+		sessionsRepo       = mocks2.SessionsRepository{}
 		client             = mocks.HTTPClient{}
 		resp               = httptest.NewRecorder()
 		oauthCfg           = config.VkOauth{
@@ -52,7 +53,7 @@ func TestVkAuth_Exec_ClientIdTrouble(t *testing.T) {
 	expectedOutcomeReq, _ = http.NewRequest(`GET`, tokenUrl, nil)
 	client.On(`Do`, expectedOutcomeReq).Once().Return(expectedIncomeResp, nil)
 
-	executor = NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, []domain.Callback{})
+	executor = NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, &sessionsRepo, []domain.Callback{})
 
 	assert.ErrorIs(t, executor.Exec(incomeReq, resp), errors.OauthError)
 }
@@ -76,6 +77,7 @@ func TestVkAuth_Exec_UserNameDoNotUpdateWhenItFilled(t *testing.T) {
 		expectedIncomeResp = &http.Response{}
 		logger             = zap.NewNop().Sugar()
 		userRepo           = mocks2.UserRepository{}
+		sessionsRepo       = mocks2.SessionsRepository{}
 		client             = mocks.HTTPClient{}
 		resp               = httptest.NewRecorder()
 		oauthCfg           = config.VkOauth{
@@ -99,10 +101,9 @@ func TestVkAuth_Exec_UserNameDoNotUpdateWhenItFilled(t *testing.T) {
 	expectedOutcomeReq, _ = http.NewRequest(`GET`, tokenUrl, nil)
 	client.On(`Do`, expectedOutcomeReq).Once().Return(expectedIncomeResp, nil)
 	userRepo.On(`GetByExternalId`, domain.OAuthVk, `66748`).Return(someExistsUser, nil)
-	// Update user`s token every time when it is possible
-	userRepo.On(`Update`, someExistsUser).Return(nil)
+	sessionsRepo.On(`Create`, someExistsUser, `533bacf01e11f55b536a565b57531ac114461ae8736d6506a3`).Return(nil)
 
-	executor = NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, []domain.Callback{})
+	executor = NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, &sessionsRepo, []domain.Callback{})
 
 	assert.Nil(t, executor.Exec(incomeReq, resp))
 }

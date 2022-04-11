@@ -135,6 +135,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 		logger          = zap.NewNop().Sugar()
 		client          = mocks.HTTPClient{}
 		userRepo        = mocks2.UserRepository{}
+		sessionsRepo    = mocks2.SessionsRepository{}
 		cfg             = config.Config{
 			Logger: config.Logger{},
 			VkOauth: config.VkOauth{
@@ -151,7 +152,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 			return handler.Exec(req, resp)
 		}
 		handlerMap = message.HandlerMap{
-			`vk_auth`: message.NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, []domain.Callback{}),
+			`vk_auth`: message.NewAuthVk(cfg.VkOauth, &client, logger, &userRepo, &sessionsRepo, []domain.Callback{}),
 		}
 		server = NewSocketServer(cfg, handlerMap, handler, logger)
 	)
@@ -165,7 +166,7 @@ func TestSocketServer_ServeHTTP_VkOauth(t *testing.T) {
 	user = &domain.User{Token: cookie, LastName: `some last name`, FirstName: `some first name`}
 	userRepo.On(`GetByExternalId`, domain.OAuthVk, `66748`).Return(user, nil)
 	// updating users`s token
-	userRepo.On(`Update`, user).Return(nil)
+	sessionsRepo.On(`Create`, user, cookie).Return(nil)
 
 	resp = httptest.NewRecorder()
 	incomeRequest = &http.Request{
