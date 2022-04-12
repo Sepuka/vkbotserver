@@ -197,6 +197,7 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 			).
 			Error(`Could not create session`)
 	}
+	user.Token = tokenResponse.Token
 
 	for _, callback = range o.callbacks {
 		go callback(user)
@@ -215,7 +216,7 @@ func (o *authVk) Exec(req *domain.Request, resp http.ResponseWriter) error {
 	}
 	siteUrl.Path = `/`
 
-	cookie.Value = user.Token
+	cookie.Value = tokenResponse.Token
 	http.SetCookie(resp, cookie)
 	http.Redirect(resp, &http.Request{}, siteUrl.String(), http.StatusFound)
 
